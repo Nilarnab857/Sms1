@@ -122,3 +122,108 @@ int main(int argc, char const *argv[]) {
 
     return 0;
 }
+
+
+//nil solution
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// Changed return type from void to int
+int f(int h, int pos, vector<pair<int, int>>& trees, vector<vector<int>>& dp, int n) {
+    // Base case: No more heights to check. Just walk to the finish line (n).
+    if (h == 0) return n - pos;
+
+    // Memoization check
+    if (dp[h][pos] != -1) return dp[h][pos];
+
+    // If there are NO trees at this height (1e9 is our placeholder), skip to height h-1
+    if (trees[h].first == 1e9) {
+        return dp[h][pos] = f(h - 1, pos, trees, dp, n);
+    }
+
+    int L = trees[h].first;
+    int R = trees[h].second;
+
+    // Scenario A: Robot is to the left of all trees of this height
+    if (pos < L) {
+        int cost = R - pos; // Distance to walk to R
+        return dp[h][pos] = cost + f(h - 1, R, trees, dp, n);
+    } 
+    // Scenario B: Robot is to the right of all trees of this height
+    else if (pos > R) {
+        int cost = pos - L; // Distance to walk to L
+        return dp[h][pos] = cost + f(h - 1, L, trees, dp, n);
+    } 
+    // Scenario C: Robot is in between the trees
+    else {
+        // Choice 1: Walk to L, then all the way to R
+        int cost1 = (pos - L) + (R - L);
+        // Choice 2: Walk to R, then all the way to L
+        int cost2 = (R - pos) + (R - L);
+        
+        // We want the MINIMUM cost, not maximum
+        return dp[h][pos] = min(cost1 + f(h - 1, R, trees, dp, n),
+                                cost2 + f(h - 1, L, trees, dp, n));
+    }
+}
+
+void solve(int testCaseNum) {
+    int n;
+    cin >> n;
+
+    // Initialize trees pair: {Leftmost, Rightmost}. 
+    // Leftmost starts at 1e9 (infinity) so min() works. Rightmost starts at -1.
+    vector<pair<int, int>> trees(1005, {1e9, -1});
+    int totaltrees = 0;
+
+    // Read Left Side Trees
+    for (int i = 0; i < n; i++) {
+        int h;
+        cin >> h;
+        if (h > 0) {
+            totaltrees++;
+            trees[h].first = min(trees[h].first, i);
+            trees[h].second = max(trees[h].second, i);
+        }
+    } // Added missing closing brace
+
+    // Read Right Side Trees
+    for (int i = 0; i < n; i++) {
+        int h;
+        cin >> h;
+        if (h > 0) {
+            totaltrees++;
+            trees[h].first = min(trees[h].first, i);
+            trees[h].second = max(trees[h].second, i);
+        }
+    } // Added missing closing brace
+
+    // Initialize DP table. Positions can go from 0 up to n, so size is n+1.
+    vector<vector<int>> dp(1005, vector<int>(n + 1, -1));
+
+    // Calculate minimum movement cost starting from height 1000 at position 0
+    int minMovementCost = f(1000, 0, trees, dp, n);
+    
+    // Total cost is Movement Cost + Cutting Cost (which is equal to totaltrees)
+    int totalCost = minMovementCost + totaltrees;
+    
+    cout << "#" << testCaseNum << " " << totalCost << "\n";
+}
+
+int main() {
+    // Fast I/O
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t;
+    if (cin >> t) {
+        for (int i = 1; i <= t; i++) {
+            solve(i);
+        }
+    }
+    return 0;
+}
