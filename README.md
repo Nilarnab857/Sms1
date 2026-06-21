@@ -7,7 +7,7 @@
 * Endoscopy(1)
 * Mr Lee(2)
 * Mr Kim(2)
-* Research Team / Rare Elements(1)
+* Research Team / Rare Elements(2
 * Spaceship / Bomb Explosion(1) good prob
 * Wormhole(1)
 * Omnious Number(1) digit dp question see properly 
