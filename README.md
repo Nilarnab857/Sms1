@@ -5,7 +5,7 @@
 * Detect and Print Cycle in Graph (1)
 * Burst Balloon(1)
 * Endoscopy(1)
-* Mr Lee(1)
+* Mr Lee(2)
 * Mr Kim(2)
 * Research Team / Rare Elements(1)
 * Spaceship / Bomb Explosion(1) good prob
