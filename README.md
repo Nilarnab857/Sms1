@@ -6,7 +6,7 @@
 * Burst Balloon(1)
 * Endoscopy(1)
 * Mr Lee(1)
-* Mr Kim(1)
+* Mr Kim(2)
 * Research Team / Rare Elements(1)
 * Spaceship / Bomb Explosion(1) good prob
 * Wormhole(1)
