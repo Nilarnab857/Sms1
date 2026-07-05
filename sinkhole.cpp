@@ -32,79 +32,98 @@ https://www.geeksforgeeks.org/samsung-competency-test-25-aug-19/
   *	time complexity of my approach = O(n*m*log(min(m,n))) *
 */
 
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-#define INT_MAX 100000;
-
-int xb,yb,xt,yt;
-
-int fun(int dp[][1001], int N, int M, int k){
-	int msum = INT_MAX;
-	for(int i=0; i<=N-k; i++){
-		for(int j=0; j<=M-k; j++){
-			int sum = dp[i+k][j+k]-dp[i+k][j]-dp[i][j+k]+dp[i][j];
-			if(sum < msum){
-				msum = sum;
-				if(msum <=1){
-					xb = i+k;
-					yb = j+1;
-					xt = i+1;
-					yt = j+k;
-				}
-			}
-		}
-	}
-	return msum;
+void solve(int tc) {
+    int m, n;
+    cin >> m >> n;
+    
+    // Read the grid (0 for empty, 1 for sinkhole)
+    vector<vector<int>> a(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            cin >> a[i][j];
+        }
+    }
+    
+    // Build 2D Prefix Sum array
+    vector<vector<int>> pre(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            pre[i][j] = (a[i][j] == 1) + pre[i][j-1] + pre[i-1][j] - pre[i-1][j-1];
+        }
+    }
+    
+    int maxL = -1;              // Tracks the maximum side length offset (length - 1)
+    int min_sinkholes = 2;      // Used for the tie-breaker
+    int maxr1 = 1, maxc1 = 1, maxr2 = 1, maxc2 = 1;
+    
+    // Iterate through every cell treating it as the top-left corner
+    for (int r = 1; r <= m; r++) {
+        for (int c = 1; c <= n; c++) {
+            
+            int lo = 0;
+            int hi = min(m - r, n - c);
+            int valid_L = 0; 
+            
+            // Binary search the maximum valid side length from this starting cell
+            while (hi >= lo) {
+                int mid = lo + (hi - lo) / 2; // Renamed 'm' to 'mid' to prevent shadowing 'm' (rows)
+                int nr = r + mid;
+                int nc = c + mid;
+                
+                int cnt = pre[nr][nc] - pre[nr][c-1] - pre[r-1][nc] + pre[r-1][c-1];
+                
+                if (cnt <= 1) {
+                    valid_L = mid; // This size works, save it
+                    lo = mid + 1;  // Try to find a larger square
+                } else {
+                    hi = mid - 1;  // Too many sinkholes, reduce the size
+                } 
+            }
+            
+            // Calculate the exact number of sinkholes for the largest valid square found here
+            int nr = r + valid_L;
+            int nc = c + valid_L;
+            int cnt = pre[nr][nc] - pre[nr][c-1] - pre[r-1][nc] + pre[r-1][c-1];
+            
+            // Update the answer if this square is strictly larger
+            if (valid_L > maxL) {
+                maxL = valid_L;
+                min_sinkholes = cnt;
+                maxr1 = r; 
+                maxc1 = c; 
+                maxr2 = nr; 
+                maxc2 = nc;
+            } 
+            // TIE-BREAKER: If it's the same size, pick the one with fewer sinkholes
+            else if (valid_L == maxL) {
+                if (cnt < min_sinkholes) {
+                    min_sinkholes = cnt;
+                    maxr1 = r; 
+                    maxc1 = c; 
+                    maxr2 = nr; 
+                    maxc2 = nc;
+                }
+            }
+        }
+    }
+    
+    // Output formatted to match Samsung OA requirements
+    cout << "#" << tc << " " << maxr1 << " " << maxc1 << " " << maxr2 << " " << maxc2 << "\n";
 }
 
 int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	/* input */
-	int N,M;
-	cin>>N>>M;
-	int A[N][M];
-	for(int i=0; i<N; i++){
-		for(int j=0; j<M; j++){
-			A[i][j]=0;
-		}
-	}
-	int K;
-	cin>>K;
-	for(int i=0; i<K; i++){
-		int x,y;
-		cin>>x>>y;
-		A[x-1][y-1]=1;
-	}
-	
-	int dp[1001][1001]; /* dp[i][j] = sum of submatrix top-left(0,0) to bottom-right(i,j) */
-	for(int i=0; i<1001; i++){
-		for(int j=0; j<1001; j++){
-			dp[i][j]=0;
-		}
-	}
-	for(int i=1; i<=N; i++){
-		for(int j=1; j<=M; j++){
-			dp[i][j] = dp[i-1][j]+dp[i][j-1]-dp[i-1][j-1]+A[i-1][j-1];
-		}
-	}
-	/* applying binary search */
-	int l=1, r=min(M,N);
-	int ones;
-	while(l<r){
-		int mid = (l+r)/2;
-		ones = fun(dp,N,M,mid);
-		//if no. of ones > 1 means we need to decrease the submatix size 
-		if(ones >1){
-			r = mid;
-		}
-		//else increase the submatrix size
-		else{
-			l = mid+1;
-		}
-	}
-	/* output */
-	cout<<xb<<" "<<yb<<" "<<xt<<" "<<yt<<endl;
-	return 0;
+    // Fast I/O
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int t;
+    if (cin >> t) {
+        for (int i = 1; i <= t; i++) {
+            solve(i); // Pass test case number for formatting
+        }
+    }
+    return 0;
 }
