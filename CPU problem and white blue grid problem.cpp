@@ -40,78 +40,95 @@ Sample Input:
 Sample Output:
 Case #1
 30
-
-
-Solution:
-
-#include<iostream>
-
+//not this is a Linear prog prob which is NP hard for dp ,
+	//soo looping and determining the last loop in O(1) is actually best
+	
+#include <bits/stdc++.h>
 using namespace std;
 
-#define rep(i,a,n) for(int i =a; i < n; i++)
-#define repe(i,a,n) for(int i =a; i <= n; i++)
+int DD, EE, FF, d, e;
+int n, maxm;
 
-int D,E,F,d,e;
-int config;
-int answer = 0;
-
-struct configuration
-{
-    int D,E,F,SPi;
-};
-configuration m[9];
-
-void solve(int index, int counta, int D, int E, int F, int cost )
-{
-
-    if(index >= config || counta == 3)
-    {
-        cost += D*d + E*e;
-        if(cost > answer)
-            answer = cost;
-        return;
-    }
-    solve(index + 1, counta, D,E,F,cost);
-
-    int i = 1;
-
-    while(true)
-    {
-        if( D - m[index].D*i >= 0 && E - m[index].E*i >=0 && F - m[index].F*i >= 0 )
-        {
-            solve(index+1,counta+1,D- m[index].D *i,E - m[index].E *i,F- m[index].F*i, cost+ m[index].SPi * i);
-            ++i;
+void solve1(int i, int j, int k, const vector<int>& D, const vector<int>& E, const vector<int>& F, const vector<int>& S) {
+    
+    // Config properties for easier reading
+    int d1 = D[i], e1 = E[i], f1 = F[i], s1 = S[i];
+    int d2 = D[j], e2 = E[j], f2 = F[j], s2 = S[j];
+    int d3 = D[k], e3 = E[k], f3 = F[k], s3 = S[k];
+    
+    // Calculate Net Profit for Configuration 3
+    int net_profit_3 = s3 - (d3 * d + e3 * e);
+    
+    for (int x1 = 0; x1 * d1 <= DD && x1 * e1 <= EE && x1 * f1 <= FF; x1++) {
+        
+        int remD1 = DD - x1 * d1;
+        int remE1 = EE - x1 * e1;
+        int remF1 = FF - x1 * f1;
+        
+        for (int x2 = 0; x2 * d2 <= remD1 && x2 * e2 <= remE1 && x2 * f2 <= remF1; x2++) {
+            
+            int remD = remD1 - x2 * d2;
+            int remE = remE1 - x2 * e2;
+            int remF = remF1 - x2 * f2;
+            
+            int cur_profit = (x1 * s1) + (x2 * s2);
+            
+            // O(1) Greedy decision for Configuration 3
+            if (net_profit_3 > 0) {
+                
+                // Find maximum units of Config 3 we can physically build
+                int x3 = INT_MAX;
+                if (d3 > 0) x3 = min(x3, remD / d3);
+                if (e3 > 0) x3 = min(x3, remE / e3);
+                if (f3 > 0) x3 = min(x3, remF / f3);
+                
+                if (x3 != INT_MAX) {
+                    remD -= x3 * d3;
+                    remE -= x3 * e3;
+                    cur_profit += (x3 * s3);
+                }
+            }
+            
+            // Sell whatever is left over
+            cur_profit += (remD * d) + (remE * e);
+            
+            if (cur_profit > maxm) {
+                maxm = cur_profit;
+            }
         }
-        else
-        {
-            break;
-        }
     }
-    return;
-
 }
 
-int main()
-{
-    int t;
-    cin >> t;
-    repe(_cases,1,t)
-    {
-
-        answer = 0;
-        cin >> D >> E >> F >> d >> e;
-
-        cin >> config;
-
-        rep(i,0,config)
-        {
-            cin >> m[i].D >> m[i].E >> m[i].F >> m[i].SPi;
-        }
-        solve(0,0,D,E,F,0);
-        cout << "Case #"<<_cases << "\n" << answer <<"\n";
-
+void solve(int caseNum) {
+    cin >> DD >> EE >> FF >> d >> e;
+    cin >> n;
+    
+    vector<int> D(n), E(n), F(n), S(n);
+    for (int i = 0; i < n; i++) {
+        cin >> D[i] >> E[i] >> F[i] >> S[i];
     }
+    
+    maxm = (DD * d) + (EE * e);
+    
+    // N^3 loop to pick the 3 configurations
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < n; k++) {
+                solve1(i, j, k, D, E, F, S);
+            }
+        }
+    }
+    
+    cout << "Case #" << caseNum << endl;
+    cout << maxm << endl;
+}
 
+int main() {
+    int tt;
+    cin >> tt;
+    for(int i = 1; i <= tt; i++) {
+        solve(i);
+    }
     return 0;
 }
 ---------------------------------------------------------------------
