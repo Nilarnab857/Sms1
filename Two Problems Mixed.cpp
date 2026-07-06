@@ -194,7 +194,83 @@ Case #1
  
 Case #2
 88 99
+//Nilarnab
+#include<bits/stdc++.h>
+using namespace std;
 
+int a[130][130];
+int bc,wc;
+
+
+
+
+int divide(int r1, int r2, int c1, int c2){
+    set<int>colors;
+    
+    for(int i=r1; i<= r2; i++){
+        for(int j = c1; j<= c2; j++){
+         colors.insert(a[i][j]) ;
+        }
+    }
+    if(colors.size()>=2) return -1;
+    else if(a[r1][c1]==0)return 0;
+    else return 1;
+    
+    
+}
+
+void f(int r1, int r2, int c1, int c2){
+    
+   int val = divide(r1,r2,c1,c2);
+    
+    
+    if(val==-1){
+        int m1 = (r1+r2)>>1;
+        int m2 = (c1+c2)>>1;
+        
+        f(r1,m1,c1,m2);
+        f(m1+1,r2,c1,m2);
+        f(r1,m1,m2+1, c2);
+        f(m1+1,r2,m2+1,c2);
+       
+
+
+
+    }else if(val==0){
+        wc++;
+
+    }else bc++;
+    
+}
+
+void solve(){
+    int n;
+    cin>>n;
+    wc=0, bc=0;
+    
+    for(int i=0 ; i<n ; i++){
+        for(int j =0 ; j< n ; j++)cin>>a[i][j];
+
+    }
+    f(0,n-1,0,n-1);
+    cout<<wc<<" "<<bc<<endl;
+    
+    
+
+
+}
+
+int main(){
+
+    int t;
+    cin>>t;
+    while(t--){
+        solve();
+
+    }
+    return 0;
+
+}
 
 
 Solution : 
