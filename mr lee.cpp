@@ -42,108 +42,46 @@ Example of Output
 18
 CUSTOM - 31 <- 4
 */
-#include<iostream>
-#include<climits>
+// some typi
+#include <bits/stdc++.h>
 using namespace std;
+int n;
 
-int N, result;
+int grid[15][15];
+int dp[(1<<12)][15];
 
-void minCostMrLee(int **arr, bool *visited, int count, int cost, int src){
-    // Base Case
-    if(count == N-1){
-    	/* Corner Case if no path exists from last city */
-        if(arr[src][0] != 0)
-        	result = min(result, cost + arr[src][0]);
-        return;
-    }
-    
-    // Main Case
-    for(int i=0; i<N; i++){
-        if(!visited[i] && arr[src][i] != 0){
-            visited[i] = true;
-            minCostMrLee(arr, visited, count + 1, cost + arr[src][i], i);
-            visited[i] = false;
+int f(int mask , int i){
+ if(dp[mask][i]!=-1)return dp[mask][i];
+ if(mask==((1<<n)-1))return (grid[i][0]==0)?(1e9):(grid[i][0]);
+ int ans=1e9;
+    for(int j =0 ; j<n; j++){
+        if(!(mask&(1<<j))){
+            if(grid[i][j]!=0)ans= min(ans,f(mask |(1<<j), j)+grid[i][j] );
+            
+            
+            
         }
     }
+    return dp[mask][i] = ans;
+    
 }
 
-int main(){
-	int t;
-	cin >> t;
-	while(t--){
-		cin >> N;
-		int **arr = new int*[N];
-		for(int i=0; i<N; i++){
-			arr[i] = new int[N];
-		}
-        bool *visited = new bool[N];
-		
-        for(int i=0; i<N; i++){
-            visited[i] = false;
-			for(int j=0; j<N; j++){
-				cin >> arr[i][j];
-			}
-		}
-		
-        result = INT_MAX;    
-        
-        visited[0] = true;
-        
-        minCostMrLee(arr, visited, 0, 0, 0);
-        result != INT_MAX ? cout << result << "\n" : cout << "-1\n";
-	}
-	return 0;
-}
-
-/*
-#include<iostream>
-using namespace std;
-int arr[1000][1000];
-bool visited[1000];
-int ans = 1000000;
-void dfs(int n,int count,int cost,int last)
-{
-    //cout<<last<<" ";
-    if(count==n)
-    {
-        //cout<<endl;
-        int cost1 = cost + arr[last][0];
-        if(cost1<ans)
-            ans = cost1;
+void solve(){
+ 
+    cin>>n;
+    for(int i=0 ; i<n ; i++){
+        for(int j=0; j< n ; j++){cin>>grid[i][j];}
     }
-    for(int i=1;i<n;i++)
-    {
-        if(visited[i])
-            continue;
-        if(arr[last][i]==0)
-            continue;
-        visited[i]=true;
-        int cost1 = cost + arr[last][i];
-        dfs(n,count+1,cost1,i);
-        visited[i]=false;
-    }
-    return;
+    memset(dp,-1,sizeof(dp));
+    cout<<f(1,0)<<endl;
+    
+    
+    
 }
-int main()
-{
+int main() {
     int t;
     cin>>t;
-    while(t--)
-    {
-        int n;
-        ans = 1000000;
-        cin>>n;
-        for(int i=0;i<n;i++)
-            visited[i]=false;
-        for(int i=0;i<n;i++)
-        {
-            for(int j=0;j<n;j++)
-           {
-               cin>>arr[i][j];
-           }
-        }
-        dfs(n,1,0,0);
-        cout<<ans<<endl;
-    }
+    while(t--)solve();
+    
+
 }
-*/
