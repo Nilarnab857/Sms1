@@ -13,6 +13,63 @@ typedef long long int LL;
 (0(5(6()())(-4()(9()())))(7(1()())(3()())))
 */
 
+//Nilarnabs OP approach
+#include <bits/stdc++.h>
+using namespace std;
+bool isdigit(char x){
+    return x>= '0' && x<= '9';
+    
+}
+
+int main() {
+	int k;
+	cin>>k;
+	string s;
+	cin>>s;
+	
+	
+	int curnum=0, sign =1, lev=-1;
+	int ans=0;
+	
+	
+	for(int i=0 ; i< s.size(); i++){
+	    if(isdigit(s[i])){
+	        curnum = curnum*10+ (s[i]-'0');
+	        
+	    }else if(s[i]=='('){
+	        if(lev==k){
+	            ans+=(sign *curnum);
+	            
+	        }
+	        
+	        lev++;
+	       curnum=0;
+	       sign =1;
+	       
+	    }else if( s[i]==')'){
+	        if(lev==k){
+	            ans+=(sign *curnum);
+	            
+	        }
+	        lev--;
+	        curnum=0;
+	        sign =1;
+	        
+	    }else if(s[i]=='-'){
+	        sign =-1;
+	        curnum=0;
+	        
+	        
+	    }
+	}
+	
+	cout<<ans<<endl;
+	
+	
+
+}
+
+
 int main()
 {
 	int arr[2][100]={0};	
