@@ -1,12 +1,5 @@
-#include<bits/stdc++.h>
-using namespace std;
-
-typedef long long int LL;
-
-#define scll(x) scanf("%lld",&x);
-#define sci(x) scanf("%d",&x);
-#define prll(x) printf("%lld\n",x);
-#define pri(x) printf("%d\n",x);
+//binrary tree given as string (root(lefttree)(righttree)) recursively
+//find sum at depth k
 
 /*
 3 
@@ -70,70 +63,96 @@ int main() {
 }
 
 
-int main()
-{
-	int arr[2][100]={0};	
-	int size = 0;
-	int x;
-	string str;
-	
-	cin>>x;
-	cin>>str;
-	int level=0, temp=0, commit=0, neg=0;
-	for(int i=0; i<str.length(); i++){
-		
-		if(str[i]=='(' || str[i]==')'){
-			if(commit == 1){
-				if(neg==1){
-					temp=temp*-1;
-					neg=0;
-				}
-				
-				arr[0][size]=level;
-				arr[1][size]=temp;
-				size++;
-				temp=0;		
-			}
-			
-			if(str[i]=='('){			
-				level++;
-			}
-			else if(str[i]==')'){
-				level--;
-			}
-			commit=0;
-		}
-		else if(str[i]=='-'){
-			neg=1;
-			commit = 1;
-		}
-		else{
-			temp= temp*10 + str[i] - '0';
-			commit = 1;
-		}	
-			
-	}
+///standard approach generalisation
+#include <iostream>
+#include <string>
 
-	int temp0,temp1;
-	for(int i=0;i<size-1;i++){
-		for(int j=i+1; j<size; j++){
-			if(arr[0][j] > arr[0][i]){
-				temp0=arr[0][j];
-				temp1=arr[1][j];
-				arr[0][j]=arr[0][i];
-				arr[1][j]=arr[1][i];
-				arr[0][i]=temp0;
-				arr[1][i]=temp1;
-			}
-			
-		}
-	}
-	
-	int sum = 0;
-	for(int i=0;i<size;i++){
-		if(arr[0][i]==x+1)	sum+=arr[1][i];
-	}
-	
-	cout<<sum<<endl;
-	return 0;
+using namespace std;
+
+// 1. Manually implement the structural representation
+struct Node {
+    int val;
+    Node* left;
+    Node* right;
+    
+    Node(int v) {
+        val = v;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+// Phase 1: Recursive String Parsing
+Node* buildTree(const string& s, int& i) {
+    if (i >= s.length() || s[i] != '(') return nullptr;
+    
+    i++; // Skip the opening '('
+    
+    // Check for an empty node "()"
+    if (s[i] == ')') {
+        i++; // Skip the closing ')'
+        return nullptr;
+    }
+
+    // Parse the node's integer value manually
+    int sign = 1;
+    int num = 0;
+    
+    if (s[i] == '-') {
+        sign = -1;
+        i++;
+    }
+    
+    while (i < s.length() && s[i] >= '0' && s[i] <= '9') {
+        num = num * 10 + (s[i] - '0');
+        i++;
+    }
+
+    // Create the current node
+    Node* root = new Node(sign * num);
+
+    // Recursively build left and right subtrees
+    root->left = buildTree(s, i);
+    root->right = buildTree(s, i);
+
+    i++; // Skip the closing ')' for the current node
+    
+    return root;
 }
+
+// Phase 2: Standard DFS Traversal
+void calculateTargetSum(Node* root, int current_depth, int target_depth, int& sum) {
+    if (root == nullptr) {
+        return;
+    }
+    
+    // If we reach the target depth, add to the sum
+    if (current_depth == target_depth) {
+        sum += root->val;
+    }
+    
+    // Continue traversing down the tree
+    calculateTargetSum(root->left, current_depth + 1, target_depth, sum);
+    calculateTargetSum(root->right, current_depth + 1, target_depth, sum);
+}
+
+int main() {
+    int k;
+    cin >> k;
+    
+    string s;
+    cin >> s;
+
+    // Start parsing from index 0
+    int index = 0;
+    Node* root = buildTree(s, index);
+
+    int target_sum = 0;
+    calculateTargetSum(root, 0, k, target_sum);
+
+    cout << target_sum << endl;
+
+    return 0;
+}
+
+
