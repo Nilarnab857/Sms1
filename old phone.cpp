@@ -1,3 +1,6 @@
+// lengthy see implementation again
+
+
 /*
 https://www.careercup.com/question?id=5680648437104640
 
@@ -60,112 +63,126 @@ Output contains 1 line printing the number of touches required to make the numbe
 
 If you have to type 18-> 2 operations. (Each touch is considered an operation),br> If you have to type 5 -> '1+4=' that requires 4 operations. There could be other ways to make '5'.
 */
+#include <iostream>
+#include <cstring> // Required for memset if you use it
 
-#include<iostream>
-#include<math.h>
 using namespace std;
-int *working,*operations;
-int answer=INT_MAX;
-int n,m,o;
-int eval(int prev,int curr,int op){
-	if(prev==-10000000){
-		return curr;
-	}
-	
-	if(op==1){
-		return prev+curr;
-	}
-	if(op==2){
-		return prev-curr;
-	}
-	if(op==3){
-		return prev*curr;
-	}
-	if(op==4){
-		if(curr==0){
-			return -1;
-		}else{
-			return prev/curr;
-		}
-	}
-}
-bool isDone(int prev,int curr,int Operation,int target){
-	if(Operation==4 && curr==0){
-		return false;
-	}
-	
-	if(eval(prev,curr,Operation)==target)
-		return 1;
-	return false;
-}
-void findMinTouch(int prev,int curr,int ooperation,int tou,int t)
-{   if(ooperation!=-1 && curr!=-10000000)
-{
-	bool k=isDone(prev,curr,ooperation,t);
-	if(k && tou<o  )
-	{
-		if(answer>tou+1)
-		answer=tou+1;
-	}
-}
-if(prev==t && tou<o && ooperation !=-1 && curr==-10000000)
-{
-	answer=min(answer,tou);
-	
-}
-if(ooperation==-1 && curr==t && tou<o )
-{
-	answer=min(answer,tou);
-}
-if(tou>o) return ;
 
-	for(int i=0;i<m;i++)
-	{
-		if(curr==-10000000)
-		break;
-		if(curr==0 && ooperation==4) continue;
-		int val=eval(prev,curr,ooperation);
-		findMinTouch(val,-10000000,operations[i],tou+1,t);
-	}
-	for(int i=0;i<n;i++)
-	{
-		if(curr==-10000000)
-		{
-			findMinTouch(prev,working[i],ooperation,tou+1,t);
-		}
-		else
-		{
-			int val=abs(curr);
-			val=val*10+working[i];
-			if(curr<0){
-				val*=-1;
-			}
-			findMinTouch(prev,val,ooperation,tou+1,t);
-		}
-	}
+int digs[10];
+int ops[4];
+
+#define MAXVAL 100000
+#define INF 1000000000
+
+int mintouches[1000005];
+int generated[1000005];
+int queue[2000005]; // Fixed name to avoid 'q' vs 'queue' conflicts
+
+int N, M, O, target;
+int gencnt = 0, front = 0, rear = 0;
+
+void reset() {
+    // Safely initializing to infinity without memset byte-corruption
+    for(int i = 0; i <= MAXVAL; i++) {
+        mintouches[i] = INF;
+    }
+    front = 0;
+    rear = 0;
+    gencnt = 0;
 }
-int main(){
-	int t;
-	cin>>t;
-	int count = 0;
-	while(t--){
-		answer=INT_MAX;
-		cin>>n>>m>>o;
-		working=new int[n + 2];
-		for(int i=0;i<n;i++){
-			cin>>working[i];
-		}
-		operations=new int[m + 2];
-		for(int i=0;i<m;i++){
-			cin>>operations[i];
-		}
-		
-		int target;
-		cin>>target;
-		
-		findMinTouch(-10000000,-10000000,-1,0,target);
-		count++;
-		cout<<"#" << count << ": " << answer<<endl;
-	}
-	return 0;
+
+int applyop(int a, int b, int op) {
+    if (op == 1) return a + b;
+    if (op == 2) return a - b;
+    if (op == 3) return a * b;
+    if (op == 4) {
+        if (b == 0) return -1; // Division by zero guard
+        return a / b;
+    }
+    return -1; 
+}
+
+void dfs(int cur, int len) {
+    if (cur > MAXVAL) return;
+    
+    if (cur > 0 || len == 1) {
+        if (mintouches[cur] > len) {
+            mintouches[cur] = len;
+            generated[gencnt++] = cur;
+            queue[rear++] = cur; // Fixed: was queur and val
+        }
+    }
+    
+    // Fixed: Loop to N (digits), not M (operators)
+    for (int i = 0; i < N; i++) {
+        if (cur == 0 && len > 0) continue; // Fixed: was leng
+        
+        long long next = (long long)cur * 10 + digs[i];
+        
+        if (next <= MAXVAL) {
+            dfs((int)next, len + 1);
+        }
+    }
+}
+
+void solve() {
+    cin >> N >> M >> O;
+    for (int i = 0; i < N; i++) cin >> digs[i];
+    for (int i = 0; i < M; i++) cin >> ops[i]; // Fixed: was cins
+    cin >> target;
+    
+    // Fixed: Bootstrap DFS using N (digits), not M
+    for (int i = 0; i < N; i++) {
+        dfs(digs[i], 1);
+    }
+    
+    while (front < rear) {
+        int num = queue[front++]; // Fixed: was q
+        int cost = mintouches[num];
+        
+        if (cost > O) continue;
+        
+        for (int i = 0; i < gencnt; i++) {
+            int oper = generated[i];
+            int opercost = mintouches[oper];
+            
+            if (opercost > O) continue;
+            
+            for (int k = 0; k < M; k++) {
+                int next = applyop(num, oper, ops[k]);
+                
+                if (next >= 0 && next <= MAXVAL) {
+                    // +2 accounts for the operator press and the '=' press
+                    int nextcost = cost + opercost + 2; 
+                    
+                    // Fixed variable names: maxtouches -> O, next_val -> next
+                    if (nextcost <= O && nextcost < mintouches[next]) {
+                        mintouches[next] = nextcost;
+                        queue[rear++] = next;
+                    }
+                }
+            }
+        }
+    }
+    
+    if (mintouches[target] <= O) {
+        cout << mintouches[target] << "\n";
+    } else {
+        cout << -1 << "\n";
+    }
+}
+
+int main() {
+    // Fast I/O is good practice here
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int tt;
+    if (cin >> tt) {
+        while (tt--) {
+            reset();
+            solve();
+        }
+    }
+    return 0;
 }
