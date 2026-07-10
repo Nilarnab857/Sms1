@@ -22,6 +22,93 @@ time is not considered and during that 10min at 10th min he will be in next divi
 6 0.774000  
 3 0.700000
 */
+//see again#include <iostream>
+using namespace std;
+
+int n, e, target, start;
+double adj[105][105];
+double dp1[105];
+double dp2[105];
+
+// Always reset up to the absolute MAX (105) to be safe, 
+// since n is not known before reading the test case.
+void reset() {
+    for (int i = 0; i < 105; i++) {
+        dp1[i] = 0.0;
+        dp2[i] = 0.0;
+        for (int j = 0; j < 105; j++) {
+            adj[i][j] = 0.0; // Using 0.0 makes the math cleaner than -1
+        }
+    }
+}
+
+void solve() {
+    reset(); // Now safe because we clear the whole 105x105 block
+    
+    // 1. Read Graph Parameters
+    cin >> n >> e >> target;
+    
+    // 2. Read Edges
+    for (int i = 0; i < e; i++) {
+        int u, v;
+        double w;
+        cin >> u >> v >> w;
+        adj[u][v] = w;
+    }
+    
+    // 3. Read Start Node
+    cin >> start;
+    
+    // 4. Setup Initial State
+    dp1[start] = 1.0;
+    int t = target / 10;
+    
+    // 5. Run the DP Simulation
+    for (int ct = 0; ct < t; ct++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                // If there's an edge (weight > 0), push probability forward
+                if (adj[i][j] > 0.0) {
+                    dp2[j] += (adj[i][j] * dp1[i]);   
+                }
+            }
+        }
+        
+        // Swap arrays and clear dp2 for the next step
+        for (int i = 0; i < n; i++) {
+            dp1[i] = dp2[i];
+            dp2[i] = 0.0;
+        }
+    }
+    
+    // 6. Find the Result
+    double maxprob = 0.0;
+    int maxnode = -1; // -1 to easily check if we found a valid node
+    
+    for (int i = 0; i < n; i++) {
+        if (dp1[i] > maxprob) {
+            maxprob = dp1[i];
+            maxnode = i;
+        }
+    }
+    
+    // 7. Output Result
+    if (maxprob == 0.0) {
+        cout << "Exited the last lab" << endl;
+    } else {
+        cout << "After " << target << " minutes, at node : " << maxnode << endl;
+    }
+}
+
+int main() {
+    int tt;
+    if(cin >> tt) {
+        while (tt--) {
+            solve();
+        }
+    }
+    return 0;
+}
 
 
 #include <iostream>
