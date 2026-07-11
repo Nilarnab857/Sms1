@@ -2,97 +2,86 @@
 Given random points in a 2-D plane, construct a convex polygon with minimum area of covering and 
 which encompasses all the given points.
 */
-#include<bits/stdc++.h>
-int cou = 0;
+#include <iostream>
+using namespace std;
 
-struct Point{
-    int x, y;
+struct Point {
+    long long x, y;
 };
- 
-int orientation(Point p, Point q, Point r){
-    int val = (q.y - p.y) * (r.x - q.x) -
-              (q.x - p.x) * (r.y - q.y);
- 
-    if (val == 0) return 0; 
-    return (val > 0)? 1: 2; 
+
+int n;
+Point pts[100005];
+Point temp[100005]; // For merge sort
+Point hull[100005]; // Acts as our stack
+
+// The golden formula: Returns >0 if left turn, <0 if right turn
+long long ccw(Point a, Point b, Point c) {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-bool cmp(Point &a, Point &b){
-    if(a.x==b.x&&a.y==b.y)
-        cou++;
-    
-    if(a.x == b.x)
-        return a.y < b.y;
-    else
-        return a.x < b.x;
-}
-
-bool myFunc(Point &a, Point &b){
-    return (a.x==b.x && a.y==b.y);
-}    
- 
-void convexHull(Point *points, int n){
-    cou = 0;
-    if (n < 3){
-        cout << "-1";
-        return;    
-    } 
-    
-    vector<Point> hull;
-    
-    int l = 0;
-    for (int i = 1; i < n; i++)
-        if (points[i].x < points[l].x)
-            l = i;
- 
-    int p = l, q;
-    do{
-        hull.push_back(points[p]);
-        
-        q = (p+1)%n;
-        
-        for (int i = 0; i < n; i++)
-        {
-           if (orientation(points[p], points[i], points[q]) == 2)
-               q = i;
+// 1. Manual Merge Sort (Sort by X, then by Y)
+void merge(int l, int m, int r) {
+    int i = l, j = m + 1, k = l;
+    while(i <= m && j <= r) {
+        // Primary sort by X, secondary sort by Y
+        if(pts[i].x < pts[j].x || (pts[i].x == pts[j].x && pts[i].y < pts[j].y)) {
+            temp[k++] = pts[i++];
+        } else {
+            temp[k++] = pts[j++];
         }
-        p = q;
- 
-    } while (p != l); 
-    
-    sort(hull.begin(), hull.end(), cmp);
-    
-    auto ip = unique(hull.begin(), hull.end(), myFunc); 
-    
-    hull.resize(std::distance(hull.begin(), ip)); 
-    
-    if(n < 4 && cou > 0 || hull.size() < 3){
-        cout << "-1";
+    }
+    while(i <= m) temp[k++] = pts[i++];
+    while(j <= r) temp[k++] = pts[j++];
+    for(int p = l; p <= r; p++) pts[p] = temp[p];
+}
+
+void merge_sort(int l, int r) {
+    if(l < r) {
+        int m = l + (r - l) / 2;
+        merge_sort(l, m);
+        merge_sort(m + 1, r);
+        merge(l, m, r);
+    }
+}
+
+void solve() {
+    cin >> n;
+    for(int i = 0; i < n; i++) {
+        cin >> pts[i].x >> pts[i].y;
+    }
+
+    // Edge case: A hull needs at least 3 points
+    if (n < 3) {
+        // Handle based on problem constraints (e.g., print all points)
         return;
     }
-    else{
-        for (int i = 0; i < hull.size(); i++){
-            if(i != hull.size() - 1)
-                cout << hull[i].x << " " << hull[i].y << ", ";
-            else
-                cout << hull[i].x << " " << hull[i].y; 
-        }        
-    }
-}
- 
-int main(){
-    int t, n;
-    cin >> t;
-    while(t--){
-        cin >> n;
-        Point *points = new Point[n];
 
-        for(int i=0; i<n; i++){
-            cin >> points[i].x >> points[i].y;                
-        }
+    merge_sort(0, n - 1);
+
+    int k = 0; // k is the size of our hull
+    
+    for(int i =0 ; i< n ; i++){
         
-        convexHull(points, n);
-        cout << "\n";
+        while(k>=2 && ccw(hull[k-2], hull[k-1], pts[i])<=0){
+            k--;
+        }
+        hull[k++] = pts[i];
+        
     }
+    int t= k+1;
+    for(int i = n-2; i>=0 ; i-- ){
+        while(k>= t && ccw(hull[k-2], hull[k-1], pts[i])<=0){
+            k--;
+            
+        }
+        hull[k++]pts[i]
+    }
+
+}
+
+int main() {
+    int tt = 1;
+    // cin >> tt;
+    while(tt--) solve();
     return 0;
 }
