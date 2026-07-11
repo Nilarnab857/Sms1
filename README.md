@@ -1,7 +1,7 @@
 # Samsung Problems for R&D India
 
 ### MUST DO PROBLEMS FOR ONLINE 3-HOUR TEST
-* Bipatite Graph
+* Bipatite Graph(done)
 * Detect and Print Cycle in Graph (1)
 * Burst Balloon(1)
 * Endoscopy(2)
