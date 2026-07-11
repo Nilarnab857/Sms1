@@ -3,7 +3,7 @@
 ### MUST DO PROBLEMS FOR ONLINE 3-HOUR TEST
 * Bipatite Graph(done)
 * Detect and Print Cycle in Graph (1)(done)
-* Burst Balloon(1)
+* Burst Balloon(1)(done)
 * Endoscopy(2)
 * Mr Lee(2)
 * Mr Kim(2)
