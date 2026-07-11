@@ -20,71 +20,60 @@ Input-2
 Output-2
 34
 */
- 
+ //dp based onn which balloon is shot the last handle the edges by padding 1s
+
 #include <iostream>
 using namespace std;
- 
-int maxcoins(int A[],int siz)
-{
-    int nums[siz+2];
-    int n=1, points = 0;
- 
-    for(int i=0;i<siz;i++)
-    {
-        if(A[i]>0)
-        {
-            nums[n] = A[i];
-            n++;
-        }
-        else
-            points += (n - 1 > 0 ? nums[n - 1] : 1) * (i + 1 < siz ? A[i + 1] : 1);    // balloons with zero points should be removed first using previous and next balloon points
-            
-    }
-    nums[0] = nums[n] = 1;
-    n++;
 
-    // dp[i][j]: maximum points that can be collected from balloons from index i to j, (i and j exclusive)
-    int dp[n][n] = {};
- 
-    for(int j=2;j<n;j++)
-    {
-        for(int left=0;left<n-j;left++)
-        {
-            int right = left+j;
-            for(int i = left+1;i<right;i++)
-            {
-                if(left==0 && right==n-1)
-                    dp[left][right] = max(nums[left]*nums[i]*nums[right] + dp[left][i] + dp[i][right],dp[left][right]);
-                else
-                    dp[left][right] = max(nums[left]*nums[right] + dp[left][i] + dp[i][right],dp[left][right]);
-            }
-        }
-        for(int i=0;i<n;i++)
-        {
-            for(int j=0;j<n;j++)
-            {
-                cout<<dp[i][j]<<" ";
-            }
-            cout<<endl;
+int n;
+int a[100];
+int dp[100][100];
+
+int f(int l, int r) {
+    if (l > r) return 0;
+    if (dp[l][r] != -1) return dp[l][r];
+    
+    int ans = 0;
+    
+    // Pick balloon k to be the LAST one to burst in this sub-range
+    for (int k = l; k <= r; k++) {
+        ans = max(ans, a[l-1] * a[r+1] + f(l, k-1) + f(k+1, r));
+    }
+    
+    return dp[l][r] = ans;
+}
+
+void reset() {
+    // Pad the array with 1s to elegantly handle boundary multiplications
+    for (int i = 0; i < 100; i++) a[i] = 1;
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 100; j++) {
+            dp[i][j] = -1;
         }
     }
-    return points + dp[0][n-1];
 }
- 
-int main()
-{
-    int siz;
-    cin >> siz;
-    int A[siz];
-    for(int i=0;i<siz;i++)
-        cin >> A[i];
- 
-    int ans = maxcoins(A,siz);
+
+void solve() {
+    cin >> n;
+    reset();
+    
+    // Read elements starting from index 1 (leaving a[0] as 1)
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    
+    int ans = 0;
+    
+    // Pick balloon k to be the ABSOLUTE LAST one to burst in the entire game
+    for (int k = 1; k <= n; k++) {
+        ans = max(ans, a[k] + f(1, k-1) + f(k+1, n));
+    }
+    
     cout << ans << endl;
+}
+
+int main() {
+    int tt;
+    cin >> tt;
+    while (tt--) solve();
+    
     return 0;
 }
-
-/*
-5
-1 2 3 5 4
-*/
