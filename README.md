@@ -5,7 +5,7 @@
 * Detect and Print Cycle in Graph (1)(done)
 * Burst Balloon(1)(done)
 * Endoscopy(2)(done see again )
-* Mr Lee(2)
+* Mr Lee(2)(done)
 * Mr Kim(2)
 * Research Team / Rare Elements(2 done
 * Spaceship / Bomb Explosion(1) good prob(done
