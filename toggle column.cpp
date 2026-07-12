@@ -19,145 +19,78 @@ if k=3, then we will toggle column 2 thrice and we will get row 2 with 1 1 1 i.e
 is 1 row with all 1’s.
 */
 
-#include<iostream>
 
+
+//IDEA
+//main concept is of each possible row types only one of the row types can be made 1 and all others can be made all1
+// for each row type compute the frequency and 0s and check if we can convert as parity of k and toggles must be same and  zerocnt<= k
+//maximise over all rows
+#include <iostream>
 using namespace std;
-int grid[100][100];
-int temp[100][100];
-int maxi=-1;
 
-/* restores original given matrix*/
-void restore(int grid[][100],int r,int c){
-	
-	for(int i=0;i<r;i++){
-	    for(int j=0;j<c;j++){
-	        grid[i][j]=temp[i][j];		
-	    }
+int n, m, k;
+int grid[55][55];
+
+void solve(int testCaseNum) {
+    cin >> n >> m >> k;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+        }
     }
-}
 
-/* calculates  energy*/
-int caleng(int grid[][100], int r, int c){
-	int allone=0,eng=0;
-    for(int i=0;i<r;i++){
-	    for(int j=0;j<c;j++){
-		    if(grid[i][j]==1){
-			    allone++;
-		    }
-		    if(allone==c){
-		    	eng++;
-		    }
-	    }
-	    allone=0;
+    int max_all_ones_rows = 0;
+
+    // Check every row as a potential "target pattern"
+    for (int i = 0; i < n; i++) {
+        int zero_count = 0;
+        
+        // 1. Count the zeros in the current row
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 0) {
+                zero_count++;
+            }
+        }
+
+        // 2. Check if this row CAN be converted to all 1s
+        if (zero_count <= k && (k - zero_count) % 2 == 0) {
+            
+            int identical_rows_count = 0;
+            
+            // 3. Count how many rows in the entire matrix are identical to row i
+            for (int r = 0; r < n; r++) {
+                bool is_identical = true;
+                for (int c = 0; c < m; c++) {
+                    if (grid[i][c] != grid[r][c]) {
+                        is_identical = false;
+                        break;
+                    }
+                }
+                
+                if (is_identical) {
+                    identical_rows_count++;
+                }
+            }
+
+            // 4. Update the global maximum
+            if (identical_rows_count > max_all_ones_rows) {
+                max_all_ones_rows = identical_rows_count;
+            }
+        }
     }
-    return eng;
+
+    cout << "#" << testCaseNum << " " << max_all_ones_rows << "\n";
 }
 
-/* flips the column*/
-void flip(int grid[][100],int r,int c,int k){
-	for(int i=0;i<r;i++){
-        if(grid[i][k]==1){
-	        grid[i][k]=0;
-	    }	
-	    else if(grid[i][k]==0){
-	        grid[i][k]=1;
-	    }		
-	}
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int t;
+    if (cin >> t) {
+        for (int i = 1; i <= t; i++) {
+            solve(i);
+        }
+    }
+    return 0;
 }
-
-void combinationUtil(int arr[], int data[], int start, int end, int index, int r,int row,int col){   
-    if (index == r){  
-        for (int j = 0; j < r; j++){ 
-			flip(grid,row,col,data[j]);
-		}
-
-		if(maxi < caleng(grid,row,col)){
-			maxi = caleng(grid,row,col);
-		}  
-
-		restore(grid,row,col);       
-        return;  
-    }  
-  
-    for (int i = start; i <= end && end - i + 1 >= r - index; i++){  
-        data[index] = arr[i];  
-        combinationUtil(arr, data, i+1, end, index+1, r,row,col);  
-    }  
-}  
-
-
-void printCombination(int arr[], int n, int r,int row,int col)  {  
-    int data[r];  
-    combinationUtil(arr, data, 0, n-1, 0, r,row,col);  
-}  
-
-int main(){
-	int t=0;
-	cin>>t;
-	int testcase=0;
-	while(t--){
-		testcase++;
-			
-			int c,r=0;
-			cin>>r>>c;
-			int s=0;
-			cin>>s;
-			int arr[c];
-			for(int j=0;j<c;j++){
-				arr[j]=j;
-			}	
-		       
-			for(int i=0;i<r;i++){
-				for(int j=0;j<c;j++){
-					cin>>grid[i][j];
-					temp[i][j]=grid[i][j];
-				}
-			}
-			
-			maxi=caleng(temp,r,c);	// if initial energy is max so this is corner case ......
-			 
-			if(s%2==0&&s>=c){
-			    for(int i=2;i<=c;i=i+2){
-			        printCombination(arr, c, i,r,c);
-			        restore(grid,r,c);	
-			    }	
-			}
-
-			// if flips are even and flips are greater than colums then check for all columns....
-			if(s%2!=0&&s>=c){
-			    for(int i=1;i<=c;i=i+2){
-			        printCombination(arr, c, i,r,c);
-			        restore(grid,r,c);	
-			    }	
-			}
-
-			// if flips are odd and flips are greater than colums then check for all columns....
-			if(s%2==0&&s<c){
-			    for(int i=2;i<=s;i=i+2){
-			        printCombination(arr, c, i,r,c);
-			        restore(grid,r,c);	
-			    }	
-			}
-
-			// if flips are lessthan columns and even then we dont need to check for all combinations with even length eg if flips are 3 and colums are 5 than we won't be checking for {1,2,3,4,5}....or if we have 2 flips we won't be checking for {1,2,3,4} types of combinations 
-			if(s%2!=0&&s<c){
-			    for(int i=1;i<=s;i=i+2){
-			        printCombination(arr, c, i,r,c);
-			        restore(grid,r,c);	
-			    }	
-			}
-
-		cout<<"#"<<testcase<<" "<<maxi<<endl;
-		maxi=-1;
-	}
-}
-
-
-/* the idea/approch behind the problem is that if we have given flips as even then only even length combination of flips will give max ans
- for eg I have 50 filps and 5 columns then even size combinations are {1,2},{2,3},{3,4},{4,5},{1,3} and so on here length of combination is 2 similarly check for combination length 4 and no need to check for 6 length combination becoz we have only 5 columns
- {1,2,3,4} is one of the combination that we need to check if we will check for all combinations like {1},{2} and so on all possible combinations including odd length combinations we will encounter TLE
- similarly if flips are odd we have to check for odd size combination length({1,2,3},{1},{2},{3}..... and so on ) this isn't exactly bruteforce but kindoff this method won't lead to TLE thats for sure.here combinations lisited above are the places where we have to flip column 
-
-                <----------------------------------------HOPE THIS WILL HELP YOU FOR ALL THE SOLUTIONS TO SAMSUNG PROBLEMS LIKE ENDOSCOPE WORMHOLES types AND MANY MORE DO LET ME KNOW--------------------------------------->
-
-*/
