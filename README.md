@@ -6,7 +6,7 @@
 * Burst Balloon(1)(done)
 * Endoscopy(2)(done see again )
 * Mr Lee(2)(done)
-* Mr Kim(2)
+* Mr Kim(2)(done)
 * Research Team / Rare Elements(2 done
 * Spaceship / Bomb Explosion(1) good prob(done
 * Wormhole(1)
