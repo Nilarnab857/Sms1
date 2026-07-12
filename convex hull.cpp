@@ -15,6 +15,7 @@ Point temp[100005]; // For merge sort
 Point hull[100005]; // Acts as our stack
 
 // The golden formula: Returns >0 if left turn, <0 if right turn
+// we need >0 so basically we need a left turn {mbc>mab}
 long long ccw(Point a, Point b, Point c) {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
